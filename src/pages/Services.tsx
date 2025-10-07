@@ -62,7 +62,6 @@ const Services = () => {
   ];
 
   const addons = [
-    { name: "Logo Design", price: "$100" },
     { name: "Additional Page", price: "$99" },
     { name: "Monthly Maintenance (updates, security, support)", price: "$50/mo" },
   ];
