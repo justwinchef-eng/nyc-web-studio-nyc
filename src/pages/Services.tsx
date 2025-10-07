@@ -67,7 +67,8 @@ const Services = () => {
     { name: "Professional Photography", price: "$499" },
     { name: "Email Marketing Setup", price: "$399" },
     { name: "Social Media Integration", price: "$199" },
-    { name: "Monthly Maintenance", price: "$99/mo" },
+    { name: "Additional Page", price: "$99" },
+    { name: "Monthly Maintenance (updates, security, support)", price: "$50/mo" },
   ];
 
   return (
