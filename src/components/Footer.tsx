@@ -8,9 +8,9 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Brand */}
           <div className="space-y-4">
-            <h3 className="text-2xl font-bold">VidaSpa</h3>
+            <h3 className="text-2xl font-bold">NYC Web Design</h3>
             <p className="text-primary-foreground/80 text-sm">
-              Bringing NYC small businesses online with beautiful, affordable websites.
+              Professional web design services for local businesses.
             </p>
           </div>
 
@@ -55,14 +55,14 @@ const Footer = () => {
               </div>
               <div className="flex items-center space-x-2">
                 <Mail size={16} className="text-accent" />
-                <a href="mailto:hello@vidaspa.com" className="hover:text-accent transition-colors">
-                  hello@vidaspa.com
+                <a href="mailto:nycwebsitebuilder@gmail.com" className="hover:text-accent transition-colors">
+                  nycwebsitebuilder@gmail.com
                 </a>
               </div>
               <div className="flex items-center space-x-2">
                 <Phone size={16} className="text-accent" />
-                <a href="tel:+1234567890" className="hover:text-accent transition-colors">
-                  (123) 456-7890
+                <a href="tel:+19293457714" className="hover:text-accent transition-colors">
+                  (929) 345-7714
                 </a>
               </div>
             </div>
@@ -73,7 +73,7 @@ const Footer = () => {
         <div className="mt-12 pt-8 border-t border-primary-foreground/20">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-sm text-primary-foreground/60">
-              © {new Date().getFullYear()} VidaSpa Web Design. All rights reserved.
+              © {new Date().getFullYear()} NYC Web Design. All rights reserved.
             </p>
             <div className="flex space-x-4">
               <a
