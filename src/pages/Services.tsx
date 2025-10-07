@@ -62,11 +62,7 @@ const Services = () => {
   ];
 
   const addons = [
-    { name: "Logo Design", price: "$299" },
-    { name: "Content Writing (per page)", price: "$99" },
-    { name: "Professional Photography", price: "$499" },
-    { name: "Email Marketing Setup", price: "$399" },
-    { name: "Social Media Integration", price: "$199" },
+    { name: "Logo Design", price: "$100" },
     { name: "Additional Page", price: "$99" },
     { name: "Monthly Maintenance (updates, security, support)", price: "$50/mo" },
   ];
