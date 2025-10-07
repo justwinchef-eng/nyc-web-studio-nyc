@@ -101,7 +101,7 @@ const Contact = () => {
                   </CardHeader>
                   <CardContent>
                     <p className="text-accent-foreground/90">
-                      I typically respond to all inquiries within 24 hours. 
+                      Our team will review your request and respond within 24 hours. 
                       Looking forward to working with you!
                     </p>
                   </CardContent>
@@ -253,7 +253,7 @@ const Contact = () => {
                   </div>
                   <h3 className="font-semibold">Quick Response</h3>
                   <p className="text-sm text-muted-foreground">
-                    I'll review your request and respond within 24 hours
+                    Our team will review your request and respond within 24 hours
                   </p>
                 </div>
                 <div className="text-center space-y-2">
