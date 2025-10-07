@@ -172,6 +172,8 @@ const Contact = () => {
                             <SelectItem value="business">Business Website</SelectItem>
                             <SelectItem value="ecommerce">E-commerce Site</SelectItem>
                             <SelectItem value="booking">Booking/Scheduling Site</SelectItem>
+                            <SelectItem value="spa">Spa/Wellness Center</SelectItem>
+                            <SelectItem value="tattoo">Tattoo Shop</SelectItem>
                             <SelectItem value="portfolio">Portfolio Site</SelectItem>
                             <SelectItem value="landing">Landing Page</SelectItem>
                             <SelectItem value="other">Other/Not Sure</SelectItem>
