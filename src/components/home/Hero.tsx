@@ -63,7 +63,7 @@ const Hero = () => {
           {/* Social Proof */}
           <div className="pt-8 flex flex-col sm:flex-row items-center justify-center gap-8 text-primary-foreground/70">
             <div className="text-center">
-              <div className="text-3xl font-bold text-primary-foreground">10+</div>
+              <div className="text-3xl font-bold text-primary-foreground">1000+</div>
               <div className="text-sm">Projects Delivered</div>
             </div>
             <div className="hidden sm:block w-px h-12 bg-primary-foreground/20" />

@@ -25,7 +25,6 @@ const Navigation = () => {
             <span className="text-2xl font-bold bg-gradient-hero bg-clip-text text-transparent">
               VidaSpa
             </span>
-            <span className="text-sm text-muted-foreground hidden sm:block">Web Design</span>
           </Link>
 
           {/* Desktop Navigation */}
