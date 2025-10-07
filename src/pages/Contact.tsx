@@ -59,8 +59,8 @@ const Contact = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <a href="mailto:hello@vidaspa.com" className="text-primary hover:text-accent transition-colors">
-                      hello@vidaspa.com
+                    <a href="mailto:nycwebsitebuilder@gmail.com" className="text-primary hover:text-accent transition-colors">
+                      nycwebsitebuilder@gmail.com
                     </a>
                   </CardContent>
                 </Card>
@@ -73,8 +73,8 @@ const Contact = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <a href="tel:+1234567890" className="text-primary hover:text-accent transition-colors">
-                      (123) 456-7890
+                    <a href="tel:+19293457714" className="text-primary hover:text-accent transition-colors">
+                      (929) 345-7714
                     </a>
                   </CardContent>
                 </Card>
