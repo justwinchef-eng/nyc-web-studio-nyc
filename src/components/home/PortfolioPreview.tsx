@@ -6,22 +6,10 @@ import { ExternalLink } from "lucide-react";
 const PortfolioPreview = () => {
   const projects = [
     {
-      title: "VidaSpa Wellness",
-      description: "Modern wellness center website with online booking and service showcase",
+      title: "VidaSpa NYC",
+      description: "Modern wellness center website with online booking, service showcase, and elegant design that reflects the spa's calming brand identity.",
       category: "Business Website",
-      url: "https://vidaspa.com",
-    },
-    {
-      title: "Local Cafe Demo",
-      description: "Restaurant website with menu, reservations, and location info",
-      category: "Restaurant Site",
-      url: "#",
-    },
-    {
-      title: "Creative Portfolio",
-      description: "Artist portfolio with gallery, bio, and contact form",
-      category: "Portfolio Site",
-      url: "#",
+      url: "https://vidaspanyc.com",
     },
   ];
 
@@ -30,15 +18,15 @@ const PortfolioPreview = () => {
       <div className="container mx-auto px-4">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
-            Recent Projects
+            Featured Project
           </h2>
           <p className="text-lg text-muted-foreground">
-            See examples of websites I've created for NYC businesses and entrepreneurs. 
-            Each project is custom-designed to reflect the unique brand and goals.
+            A recent website I've created for an NYC wellness business. 
+            Custom-designed to reflect the unique brand and business goals.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div className="max-w-md mx-auto mb-12">
           {projects.map((project, index) => (
             <Card key={index} className="border-border hover:shadow-lg transition-all duration-300 group">
               <CardHeader>
