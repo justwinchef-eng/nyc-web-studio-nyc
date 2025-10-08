@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Session } from "@supabase/supabase-js";
-import { LogOut, Mail, Phone, Building, DollarSign, Clock } from "lucide-react";
+import { LogOut, Mail, Phone, Building, DollarSign, Clock, Shield } from "lucide-react";
 
 interface QuoteRequest {
   id: string;
@@ -22,12 +22,20 @@ interface QuoteRequest {
   timeline: string | null;
 }
 
+interface AdminUser {
+  id: string;
+  user_id: string;
+  role: string;
+  created_at: string;
+}
+
 const Admin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [quoteRequests, setQuoteRequests] = useState<QuoteRequest[]>([]);
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -76,6 +84,7 @@ const Admin = () => {
       setIsAdmin(!!data);
       if (data) {
         loadQuoteRequests();
+        loadAdminUsers();
       } else {
         setIsLoading(false);
       }
@@ -104,6 +113,26 @@ const Admin = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadAdminUsers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("*")
+        .eq("role", "admin")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      setAdminUsers(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to load admin users: " + error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -170,6 +199,39 @@ const Admin = () => {
 
         <section className="py-20">
           <div className="container mx-auto px-4">
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                <Shield className="text-accent" size={24} />
+                Admin Users
+              </h2>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {adminUsers.length === 0 ? (
+                  <Card className="border-border">
+                    <CardContent className="py-8 text-center">
+                      <p className="text-muted-foreground">No admin users found</p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  adminUsers.map((admin) => (
+                    <Card key={admin.id} className="border-border">
+                      <CardContent className="pt-6">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Shield className="text-accent" size={16} />
+                          <span className="font-medium">Admin</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          User ID: {admin.user_id}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Added: {new Date(admin.created_at).toLocaleDateString()}
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
+            </div>
+
             <div className="mb-8">
               <h2 className="text-2xl font-bold mb-2">Quote Requests</h2>
               <p className="text-muted-foreground">
