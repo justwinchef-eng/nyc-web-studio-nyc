@@ -25,7 +25,8 @@ const Navigation = () => {
   const navLinks = [
     { name: "Home", path: "/" },
     { name: "Services", path: "/services" },
-    { name: "Portfolio", path: "/portfolio" },
+    { name: "About", path: "/about" },
+    { name: "Gallery", path: "/gallery" },
     { name: "Contact", path: "/contact" },
   ];
 
@@ -53,8 +54,8 @@ const Navigation = () => {
                 {link.name}
               </Link>
             ))}
-            <Link to="/contact">
-              <Button variant="accent" size="sm">Get a Quote</Button>
+            <Link to="/booking">
+              <Button variant="accent" size="sm">Book Consultation</Button>
             </Link>
             {!session ? (
               <Link to="/auth">
@@ -95,8 +96,8 @@ const Navigation = () => {
                 {link.name}
               </Link>
             ))}
-            <Link to="/contact" onClick={() => setIsOpen(false)}>
-              <Button variant="accent" size="sm" className="w-full">Get a Quote</Button>
+            <Link to="/booking" onClick={() => setIsOpen(false)}>
+              <Button variant="accent" size="sm" className="w-full">Book Consultation</Button>
             </Link>
             {!session ? (
               <Link to="/auth" onClick={() => setIsOpen(false)}>
