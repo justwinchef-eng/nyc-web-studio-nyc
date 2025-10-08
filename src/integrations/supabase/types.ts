@@ -26,6 +26,7 @@ export type Database = {
           project_details: string | null
           service_type: string | null
           timeline: string | null
+          user_id: string | null
         }
         Insert: {
           budget?: string | null
@@ -38,6 +39,7 @@ export type Database = {
           project_details?: string | null
           service_type?: string | null
           timeline?: string | null
+          user_id?: string | null
         }
         Update: {
           budget?: string | null
@@ -50,6 +52,7 @@ export type Database = {
           project_details?: string | null
           service_type?: string | null
           timeline?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }

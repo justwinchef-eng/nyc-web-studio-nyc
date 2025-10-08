@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -8,9 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, MapPin, Phone, Send } from "lucide-react";
+import { Mail, MapPin, Phone, Send, LogIn } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { z } from "zod";
+import { Session } from "@supabase/supabase-js";
 
 const quoteSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
@@ -25,11 +27,36 @@ const quoteSchema = z.object({
 
 const Contact = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [lastSubmitTime, setLastSubmitTime] = useState(0);
+  const [session, setSession] = useState<Session | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    // Check if user is authenticated
+    if (!session?.user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please create an account or sign in to submit a quote request.",
+        variant: "destructive",
+      });
+      navigate("/auth");
+      return;
+    }
     
     // Basic rate limiting: prevent submissions within 10 seconds
     const now = Date.now();
@@ -64,6 +91,7 @@ const Contact = () => {
       const { error } = await supabase
         .from("quote_requests")
         .insert([{
+          user_id: session.user.id,
           name: validatedData.name,
           email: validatedData.email,
           phone: validatedData.phone || null,
@@ -187,7 +215,14 @@ const Contact = () => {
                   <CardHeader>
                     <CardTitle className="text-2xl">Request a Quote</CardTitle>
                     <CardDescription className="text-base">
-                      Fill out the form below and I'll get back to you with a custom quote
+                      {!session ? (
+                        <span className="flex items-center gap-2 text-amber-600">
+                          <LogIn size={16} />
+                          Please create an account or sign in to submit a quote request
+                        </span>
+                      ) : (
+                        "Fill out the form below and I'll get back to you with a custom quote"
+                      )}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
@@ -290,22 +325,35 @@ const Contact = () => {
                         />
                       </div>
 
-                      <Button 
-                        type="submit" 
-                        variant="accent" 
-                        size="lg" 
-                        className="w-full"
-                        disabled={isSubmitting}
-                      >
-                        {isSubmitting ? (
-                          "Sending..."
-                        ) : (
-                          <>
-                            Send Message
-                            <Send size={18} className="ml-2" />
-                          </>
-                        )}
-                      </Button>
+                      {!session ? (
+                        <Button 
+                          type="button"
+                          variant="accent" 
+                          size="lg" 
+                          className="w-full"
+                          onClick={() => navigate("/auth")}
+                        >
+                          <LogIn size={18} className="mr-2" />
+                          Sign In to Submit Quote
+                        </Button>
+                      ) : (
+                        <Button 
+                          type="submit" 
+                          variant="accent" 
+                          size="lg" 
+                          className="w-full"
+                          disabled={isSubmitting}
+                        >
+                          {isSubmitting ? (
+                            "Sending..."
+                          ) : (
+                            <>
+                              Send Message
+                              <Send size={18} className="ml-2" />
+                            </>
+                          )}
+                        </Button>
+                      )}
                     </form>
                   </CardContent>
                 </Card>

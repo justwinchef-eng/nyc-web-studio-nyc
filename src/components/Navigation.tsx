@@ -56,17 +56,16 @@ const Navigation = () => {
             <Link to="/contact">
               <Button variant="accent" size="sm">Get a Quote</Button>
             </Link>
-            {session && (
-              <Link to="/admin">
-                <Button variant="outline" size="sm">Admin</Button>
-              </Link>
-            )}
-            {!session && (
+            {!session ? (
               <Link to="/auth">
                 <Button variant="ghost" size="sm">
                   <LogIn size={16} className="mr-2" />
                   Login
                 </Button>
+              </Link>
+            ) : (
+              <Link to="/admin">
+                <Button variant="outline" size="sm">Dashboard</Button>
               </Link>
             )}
           </div>
@@ -99,17 +98,16 @@ const Navigation = () => {
             <Link to="/contact" onClick={() => setIsOpen(false)}>
               <Button variant="accent" size="sm" className="w-full">Get a Quote</Button>
             </Link>
-            {session && (
-              <Link to="/admin" onClick={() => setIsOpen(false)}>
-                <Button variant="outline" size="sm" className="w-full">Admin</Button>
-              </Link>
-            )}
-            {!session && (
+            {!session ? (
               <Link to="/auth" onClick={() => setIsOpen(false)}>
                 <Button variant="ghost" size="sm" className="w-full">
                   <LogIn size={16} className="mr-2" />
                   Login
                 </Button>
+              </Link>
+            ) : (
+              <Link to="/admin" onClick={() => setIsOpen(false)}>
+                <Button variant="outline" size="sm" className="w-full">Dashboard</Button>
               </Link>
             )}
           </div>

@@ -21,7 +21,7 @@ const Auth = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       if (session) {
-        navigate("/admin");
+        navigate("/");
       }
     });
 
@@ -29,7 +29,7 @@ const Auth = () => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       if (session) {
-        navigate("/admin");
+        navigate("/");
       }
     });
 
@@ -65,7 +65,7 @@ const Auth = () => {
       return;
     }
 
-    const redirectUrl = `${window.location.origin}/admin`;
+    const redirectUrl = `${window.location.origin}/`;
 
     const { error } = await supabase.auth.signUp({
       email,
@@ -129,9 +129,9 @@ const Auth = () => {
               <Lock className="text-accent-foreground" size={24} />
             </div>
           </div>
-          <CardTitle className="text-2xl text-center">Admin Access</CardTitle>
+          <CardTitle className="text-2xl text-center">Account Access</CardTitle>
           <CardDescription className="text-center">
-            Sign in to manage quote requests
+            Sign in or create an account to submit quote requests
           </CardDescription>
         </CardHeader>
         <CardContent>
