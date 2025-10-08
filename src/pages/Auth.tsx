@@ -125,6 +125,35 @@ const Auth = () => {
     }
   };
 
+  const handleResendCode = async () => {
+    setIsLoading(true);
+
+    const redirectUrl = `${window.location.origin}/`;
+
+    const { error } = await supabase.auth.signUp({
+      email: verificationEmail,
+      password: "resend", // Dummy password as we're just resending the code
+      options: {
+        emailRedirectTo: redirectUrl,
+      },
+    });
+
+    setIsLoading(false);
+
+    if (error) {
+      toast({
+        title: "Resend Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Code Resent!",
+        description: "A new verification code has been sent to your email.",
+      });
+    }
+  };
+
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
@@ -191,6 +220,15 @@ const Auth = () => {
                 disabled={isLoading}
               >
                 {isLoading ? "Verifying..." : "Verify Email"}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleResendCode}
+                disabled={isLoading}
+              >
+                Resend Code
               </Button>
               <Button
                 type="button"
