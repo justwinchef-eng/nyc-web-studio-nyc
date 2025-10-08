@@ -69,9 +69,8 @@ Deno.serve(async (req) => {
       `
       subject = 'Verify Your Email Address'
     } else if (email_action_type === 'recovery') {
-      // Password reset email
-      const siteUrl = Deno.env.get('SUPABASE_URL')?.replace('https://edfvubzzeulcitedfjka.supabase.co', 'https://edfvubzzeulcitedfjka.lovableproject.com') || redirect_to
-      const resetLink = `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${siteUrl}/auth`
+      // Password reset email - use the redirect_to from the webhook
+      const resetLink = `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`
       html = `
         <!DOCTYPE html>
         <html>
