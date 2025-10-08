@@ -80,11 +80,20 @@ const Auth = () => {
     setIsLoading(false);
 
     if (error) {
-      toast({
-        title: "Sign Up Failed",
-        description: error.message,
-        variant: "destructive",
-      });
+      // Check if it's a duplicate user error
+      if (error.message.includes("already registered") || error.message.includes("User already registered")) {
+        toast({
+          title: "Account Already Exists",
+          description: "This account is already signed up with us. Please sign in instead.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Sign Up Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      }
     } else {
       setNeedsVerification(true);
       setVerificationEmail(email);
@@ -128,14 +137,9 @@ const Auth = () => {
   const handleResendCode = async () => {
     setIsLoading(true);
 
-    const redirectUrl = `${window.location.origin}/`;
-
-    const { error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.resend({
+      type: 'signup',
       email: verificationEmail,
-      password: "resend", // Dummy password as we're just resending the code
-      options: {
-        emailRedirectTo: redirectUrl,
-      },
     });
 
     setIsLoading(false);
