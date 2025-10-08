@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { Session } from "@supabase/supabase-js";
-import { Calendar, Mail, Phone, Building, DollarSign, Clock, FileText, LogOut } from "lucide-react";
+import { Calendar, Mail, Phone, Building, DollarSign, Clock, FileText, LogOut, Shield } from "lucide-react";
 
 interface QuoteRequest {
   id: string;
@@ -20,6 +20,14 @@ interface QuoteRequest {
   budget: string | null;
   project_details: string | null;
   timeline: string | null;
+  user_id: string | null;
+}
+
+interface AdminUser {
+  id: string;
+  user_id: string;
+  role: string;
+  created_at: string;
 }
 
 const Dashboard = () => {
@@ -27,6 +35,8 @@ const Dashboard = () => {
   const { toast } = useToast();
   const [session, setSession] = useState<Session | null>(null);
   const [quoteRequests, setQuoteRequests] = useState<QuoteRequest[]>([]);
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -36,7 +46,9 @@ const Dashboard = () => {
       if (!session) {
         navigate("/auth");
       } else {
-        loadQuoteRequests();
+        setTimeout(() => {
+          checkAdminStatus(session.user.id);
+        }, 0);
       }
     });
 
@@ -46,19 +58,56 @@ const Dashboard = () => {
       if (!session) {
         navigate("/auth");
       } else {
-        loadQuoteRequests();
+        checkAdminStatus(session.user.id);
       }
     });
 
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const loadQuoteRequests = async () => {
+  const checkAdminStatus = async (userId: string) => {
     try {
       const { data, error } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .eq("role", "admin")
+        .maybeSingle();
+
+      if (error) {
+        console.error("Error checking admin status:", error);
+        setIsAdmin(false);
+      } else {
+        setIsAdmin(!!data);
+      }
+
+      // Load quotes regardless of admin status
+      await loadQuoteRequests(userId, !!data);
+      
+      // Load admin users if user is admin
+      if (data) {
+        await loadAdminUsers();
+      }
+    } catch (error) {
+      console.error("Error in checkAdminStatus:", error);
+      setIsAdmin(false);
+      await loadQuoteRequests(userId, false);
+    }
+  };
+
+  const loadQuoteRequests = async (userId: string, isAdmin: boolean) => {
+    try {
+      let query = supabase
         .from("quote_requests")
         .select("*")
         .order("created_at", { ascending: false });
+
+      // If not admin, only show user's own quotes
+      if (!isAdmin) {
+        query = query.eq("user_id", userId);
+      }
+
+      const { data, error } = await query;
 
       if (error) throw error;
 
@@ -71,6 +120,26 @@ const Dashboard = () => {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const loadAdminUsers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("user_roles")
+        .select("*")
+        .eq("role", "admin")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      setAdminUsers(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to load admin users: " + error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -99,15 +168,55 @@ const Dashboard = () => {
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
             <div>
-              <h1 className="text-4xl font-bold mb-2">My Quote Requests</h1>
+              <h1 className="text-4xl font-bold mb-2">
+                {isAdmin ? "Admin Dashboard" : "My Quote Requests"}
+              </h1>
               <p className="text-muted-foreground">
-                View and track all your submitted quote requests
+                {isAdmin 
+                  ? "Manage all quote requests and admin users" 
+                  : "View and track all your submitted quote requests"}
               </p>
             </div>
             <Button variant="outline" onClick={handleSignOut}>
               <LogOut size={16} className="mr-2" />
               Sign Out
             </Button>
+          </div>
+
+          {isAdmin && adminUsers.length > 0 && (
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold mb-4 flex items-center gap-2">
+                <Shield className="text-accent" size={24} />
+                Admin Users
+              </h2>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {adminUsers.map((admin) => (
+                  <Card key={admin.id} className="border-border">
+                    <CardContent className="pt-6">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Shield className="text-accent" size={16} />
+                        <span className="font-medium">Admin</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        User ID: {admin.user_id}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Added: {new Date(admin.created_at).toLocaleDateString()}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold mb-2">
+              {isAdmin ? "All Quote Requests" : "My Quotes"}
+            </h2>
+            <p className="text-muted-foreground">
+              Total: {quoteRequests.length}
+            </p>
           </div>
 
           {quoteRequests.length === 0 ? (
