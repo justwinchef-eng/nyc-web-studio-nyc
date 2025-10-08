@@ -17,6 +17,8 @@ const Auth = () => {
   const [session, setSession] = useState<Session | null>(null);
   const [needsVerification, setNeedsVerification] = useState(false);
   const [verificationEmail, setVerificationEmail] = useState("");
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmailSent, setResetEmailSent] = useState(false);
 
   useEffect(() => {
     // Set up auth state listener
@@ -82,9 +84,11 @@ const Auth = () => {
     if (error) {
       // Check if it's a duplicate user error
       if (error.message.includes("already registered") || error.message.includes("User already registered")) {
+        setShowForgotPassword(true);
+        setVerificationEmail(email);
         toast({
           title: "Account Already Exists",
-          description: "This account is already signed up with us. Please sign in instead.",
+          description: "This account is already signed up. Please use forgot password to reset your password.",
           variant: "destructive",
         });
       } else {
@@ -158,6 +162,36 @@ const Auth = () => {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("reset-email") as string;
+
+    const redirectUrl = `${window.location.origin}/`;
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: redirectUrl,
+    });
+
+    setIsLoading(false);
+
+    if (error) {
+      toast({
+        title: "Reset Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      setResetEmailSent(true);
+      toast({
+        title: "Reset Email Sent!",
+        description: "Please check your email for password reset instructions.",
+      });
+    }
+  };
+
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
@@ -185,6 +219,83 @@ const Auth = () => {
   // Don't show auth form if already logged in
   if (session) {
     return null;
+  }
+
+  // Show forgot password form if needed
+  if (showForgotPassword) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
+        <Card className="w-full max-w-md border-border shadow-lg">
+          <CardHeader className="space-y-1">
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-full bg-gradient-accent flex items-center justify-center">
+                <Lock className="text-accent-foreground" size={24} />
+              </div>
+            </div>
+            <CardTitle className="text-2xl text-center">
+              {resetEmailSent ? "Check Your Email" : "Reset Password"}
+            </CardTitle>
+            <CardDescription className="text-center">
+              {resetEmailSent 
+                ? `We sent password reset instructions to ${verificationEmail}`
+                : "Enter your email to receive password reset instructions"
+              }
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {!resetEmailSent ? (
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="reset-email">Email</Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="reset-email"
+                      name="reset-email"
+                      type="email"
+                      placeholder="your@email.com"
+                      className="pl-9"
+                      required
+                      defaultValue={verificationEmail}
+                    />
+                  </div>
+                </div>
+                <Button
+                  type="submit"
+                  variant="accent"
+                  className="w-full"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Sending..." : "Send Reset Link"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => {
+                    setShowForgotPassword(false);
+                    setResetEmailSent(false);
+                  }}
+                >
+                  Back to Sign In
+                </Button>
+              </form>
+            ) : (
+              <Button
+                variant="accent"
+                className="w-full"
+                onClick={() => {
+                  setShowForgotPassword(false);
+                  setResetEmailSent(false);
+                }}
+              >
+                Back to Sign In
+              </Button>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   // Show verification form if needed
@@ -309,6 +420,14 @@ const Auth = () => {
                   disabled={isLoading}
                 >
                   {isLoading ? "Signing in..." : "Sign In"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="link"
+                  className="w-full"
+                  onClick={() => setShowForgotPassword(true)}
+                >
+                  Forgot Password?
                 </Button>
               </form>
             </TabsContent>
