@@ -70,7 +70,8 @@ Deno.serve(async (req) => {
       subject = 'Verify Your Email Address'
     } else if (email_action_type === 'recovery') {
       // Password reset email
-      const resetLink = `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${redirect_to}`
+      const siteUrl = Deno.env.get('SUPABASE_URL')?.replace('https://edfvubzzeulcitedfjka.supabase.co', 'https://edfvubzzeulcitedfjka.lovableproject.com') || redirect_to
+      const resetLink = `${Deno.env.get('SUPABASE_URL')}/auth/v1/verify?token=${token_hash}&type=${email_action_type}&redirect_to=${siteUrl}/auth`
       html = `
         <!DOCTYPE html>
         <html>
@@ -80,21 +81,24 @@ Deno.serve(async (req) => {
           </head>
           <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Ubuntu, sans-serif; background-color: #f6f9fc;">
             <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px 0 48px;">
-              <h1 style="color: #333; font-size: 28px; font-weight: bold; margin: 40px 0 20px; padding: 0 40px;">Password Reset Request</h1>
+              <h1 style="color: #333; font-size: 28px; font-weight: bold; margin: 40px 0 20px; padding: 0 40px;">🔐 Reset Your Password</h1>
               <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0; padding: 0 40px;">
-                We received a request to reset your password. Click the button below to create a new password:
+                Hi there! We received a request to reset your password. No worries - it happens to the best of us!
+              </p>
+              <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0; padding: 0 40px;">
+                Click the button below to create a new password and get back into your account:
               </p>
               <div style="margin: 32px 40px; text-align: center;">
-                <a href="${resetLink}" style="background-color: #5469d4; border-radius: 8px; color: #fff; font-size: 16px; font-weight: bold; text-decoration: none; display: inline-block; padding: 12px 32px;">Reset Password</a>
+                <a href="${resetLink}" style="background-color: #5469d4; border-radius: 8px; color: #fff; font-size: 16px; font-weight: bold; text-decoration: none; display: inline-block; padding: 14px 36px; box-shadow: 0 2px 8px rgba(84, 105, 212, 0.3);">Reset My Password</a>
               </div>
-              <p style="color: #333; font-size: 16px; line-height: 26px; margin: 16px 0; padding: 0 40px;">
-                This link will expire in 1 hour for security reasons.
+              <p style="color: #666; font-size: 14px; line-height: 24px; margin: 16px 0; padding: 0 40px; text-align: center;">
+                This link will expire in 1 hour for your security.
               </p>
               <p style="color: #8898aa; font-size: 14px; line-height: 24px; margin: 32px 0 16px; padding: 0 40px;">
-                If you didn't request a password reset, you can safely ignore this email. Your password will remain unchanged.
+                If you didn't request this password reset, please ignore this email. Your password will remain unchanged and your account is secure.
               </p>
               <p style="color: #333; font-size: 14px; line-height: 24px; margin: 16px 0; padding: 0 40px;">
-                Best regards,<br>The Team
+                Best regards,<br>Your Website Team
               </p>
             </div>
           </body>
@@ -106,7 +110,7 @@ Deno.serve(async (req) => {
     }
 
     const { error } = await resend.emails.send({
-      from: 'noreply <onboarding@resend.dev>',
+      from: 'Your Website <onboarding@resend.dev>',
       to: [user.email],
       subject,
       html,
