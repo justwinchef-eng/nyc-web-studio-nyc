@@ -1,11 +1,26 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { Session } from "@supabase/supabase-js";
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
   const location = useLocation();
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+    });
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const navLinks = [
     { name: "Home", path: "/" },
@@ -41,6 +56,19 @@ const Navigation = () => {
             <Link to="/contact">
               <Button variant="accent" size="sm">Get a Quote</Button>
             </Link>
+            {session && (
+              <Link to="/admin">
+                <Button variant="outline" size="sm">Admin</Button>
+              </Link>
+            )}
+            {!session && (
+              <Link to="/auth">
+                <Button variant="ghost" size="sm">
+                  <LogIn size={16} className="mr-2" />
+                  Login
+                </Button>
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -71,6 +99,19 @@ const Navigation = () => {
             <Link to="/contact" onClick={() => setIsOpen(false)}>
               <Button variant="accent" size="sm" className="w-full">Get a Quote</Button>
             </Link>
+            {session && (
+              <Link to="/admin" onClick={() => setIsOpen(false)}>
+                <Button variant="outline" size="sm" className="w-full">Admin</Button>
+              </Link>
+            )}
+            {!session && (
+              <Link to="/auth" onClick={() => setIsOpen(false)}>
+                <Button variant="ghost" size="sm" className="w-full">
+                  <LogIn size={16} className="mr-2" />
+                  Login
+                </Button>
+              </Link>
+            )}
           </div>
         )}
       </div>

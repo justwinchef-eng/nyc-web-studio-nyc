@@ -9,24 +9,97 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, MapPin, Phone, Send } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { z } from "zod";
+
+const quoteSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
+  email: z.string().trim().email("Invalid email address").max(255, "Email must be less than 255 characters"),
+  phone: z.string().trim().max(20, "Phone must be less than 20 characters").optional().or(z.literal("")),
+  business_name: z.string().trim().min(1, "Business name is required").max(100, "Business name must be less than 100 characters"),
+  service_type: z.string().min(1, "Please select a service type"),
+  budget: z.string().optional(),
+  project_details: z.string().trim().min(1, "Project details are required").max(5000, "Project details must be less than 5000 characters"),
+  timeline: z.string().trim().max(200, "Timeline must be less than 200 characters").optional().or(z.literal("")),
+});
 
 const Contact = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [lastSubmitTime, setLastSubmitTime] = useState(0);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    // Basic rate limiting: prevent submissions within 10 seconds
+    const now = Date.now();
+    if (now - lastSubmitTime < 10000) {
+      toast({
+        title: "Please wait",
+        description: "You're submitting too quickly. Please wait a moment.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsSubmitting(true);
 
-    // Simulate form submission
-    setTimeout(() => {
+    try {
+      const formData = new FormData(e.currentTarget);
+      const formValues = {
+        name: formData.get("name") as string,
+        email: formData.get("email") as string,
+        phone: formData.get("phone") as string,
+        business_name: formData.get("business") as string,
+        service_type: formData.get("service") as string,
+        budget: formData.get("budget") as string,
+        project_details: formData.get("message") as string,
+        timeline: formData.get("timeline") as string,
+      };
+
+      // Validate input
+      const validatedData = quoteSchema.parse(formValues);
+
+      // Save to database
+      const { error } = await supabase
+        .from("quote_requests")
+        .insert([{
+          name: validatedData.name,
+          email: validatedData.email,
+          phone: validatedData.phone || null,
+          business_name: validatedData.business_name,
+          service_type: validatedData.service_type,
+          budget: validatedData.budget || null,
+          project_details: validatedData.project_details,
+          timeline: validatedData.timeline || null,
+        }]);
+
+      if (error) throw error;
+
       toast({
-        title: "Message Sent!",
+        title: "Quote Request Submitted!",
         description: "Thanks for reaching out! I'll get back to you within 24 hours.",
       });
-      setIsSubmitting(false);
+      
+      setLastSubmitTime(now);
       (e.target as HTMLFormElement).reset();
-    }, 1000);
+    } catch (error: any) {
+      if (error instanceof z.ZodError) {
+        toast({
+          title: "Validation Error",
+          description: error.errors[0].message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Submission Failed",
+          description: error.message || "Please try again later.",
+          variant: "destructive",
+        });
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
