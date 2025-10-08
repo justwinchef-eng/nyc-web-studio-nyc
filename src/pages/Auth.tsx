@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { Lock, Mail } from "lucide-react";
+import { Lock, Mail, KeyRound } from "lucide-react";
 import { Session } from "@supabase/supabase-js";
 
 const Auth = () => {
@@ -15,6 +15,8 @@ const Auth = () => {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [verificationEmail, setVerificationEmail] = useState("");
 
   useEffect(() => {
     // Set up auth state listener
@@ -84,10 +86,42 @@ const Auth = () => {
         variant: "destructive",
       });
     } else {
+      setNeedsVerification(true);
+      setVerificationEmail(email);
       toast({
-        title: "Account Created!",
-        description: "You can now log in with your credentials.",
+        title: "Verification Email Sent!",
+        description: "Please check your email and enter the verification code.",
       });
+    }
+  };
+
+  const handleVerifyOTP = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const token = formData.get("otp") as string;
+
+    const { error } = await supabase.auth.verifyOtp({
+      email: verificationEmail,
+      token,
+      type: 'signup'
+    });
+
+    setIsLoading(false);
+
+    if (error) {
+      toast({
+        title: "Verification Failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } else {
+      toast({
+        title: "Email Verified!",
+        description: "Your account is now active.",
+      });
+      setNeedsVerification(false);
     }
   };
 
@@ -118,6 +152,59 @@ const Auth = () => {
   // Don't show auth form if already logged in
   if (session) {
     return null;
+  }
+
+  // Show verification form if needed
+  if (needsVerification) {
+    return (
+      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center p-4">
+        <Card className="w-full max-w-md border-border shadow-lg">
+          <CardHeader className="space-y-1">
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-12 h-12 rounded-full bg-gradient-accent flex items-center justify-center">
+                <KeyRound className="text-accent-foreground" size={24} />
+              </div>
+            </div>
+            <CardTitle className="text-2xl text-center">Verify Your Email</CardTitle>
+            <CardDescription className="text-center">
+              We sent a verification code to {verificationEmail}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleVerifyOTP} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="otp">Verification Code</Label>
+                <Input
+                  id="otp"
+                  name="otp"
+                  type="text"
+                  placeholder="Enter 6-digit code"
+                  required
+                  maxLength={6}
+                  pattern="[0-9]{6}"
+                />
+              </div>
+              <Button
+                type="submit"
+                variant="accent"
+                className="w-full"
+                disabled={isLoading}
+              >
+                {isLoading ? "Verifying..." : "Verify Email"}
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={() => setNeedsVerification(false)}
+              >
+                Back to Sign Up
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   return (
