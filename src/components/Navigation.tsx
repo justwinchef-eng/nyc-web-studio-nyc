@@ -64,7 +64,7 @@ const Navigation = () => {
                 </Button>
               </Link>
             ) : (
-              <Link to="/admin">
+              <Link to="/dashboard">
                 <Button variant="outline" size="sm">Dashboard</Button>
               </Link>
             )}
@@ -106,7 +106,7 @@ const Navigation = () => {
                 </Button>
               </Link>
             ) : (
-              <Link to="/admin" onClick={() => setIsOpen(false)}>
+              <Link to="/dashboard" onClick={() => setIsOpen(false)}>
                 <Button variant="outline" size="sm" className="w-full">Dashboard</Button>
               </Link>
             )}
